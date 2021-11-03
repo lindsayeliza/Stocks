@@ -2,48 +2,51 @@ Sub SortDebt()
 
 Dim r1, r2 As Integer
 Dim c1, c2 As Integer
-Dim x1, x2, x3, x4 As Range
-Dim y1, y2, y3, y4, y5, y6, y7, y8, y9 As Variant
+Dim t1, t2, t3, t4 As Integer
+Dim total_array(14), public_array(14), government_array(14) As Variant
+Dim array_index As Integer
 Dim s1, s2 As String
-Dim date1 As Date
-Dim month1 As Integer
-Dim year1 As Integer
-Dim total_debt, total_marketable, total_nonmarketable As Integer
-Dim bills, notes, bonds, tips, floating, ffb As Integer
+Dim day1, month1, year1 As Integer
+Dim source_line As Integer
 
 r1 = 2
 c1 = 1
 
-r2 = 3
+r2 = 2
 c2 = 2
 
-For i = 0 To 15
+With Worksheets("Data")
 
-    Set x1 = Sheets("Data").Range(Cells(r1 + i, c1), Cells(r1 + i, c1))
-    date1 = Date(x1)
-    month1 = Month(date1)
-    year1 = Year(date1)
+    For j = 0 To 50
     
-    s1 = Sheets("Data").Range(Cells(r1 + i, c1 + 1), Cells(r1 + i, c1 + 1))
-    s2 = Sheets("Data").Range(Cells(r1 + i, c1 + 2), Cells(r1 + i, c1 + 2))
-    x2 = Sheets("Data").Range(Cells(r1 + i, c1 + 4), Cells(r1 + i, c1 + 4))
-    x3 = Sheets("Data").Range(Cells(r1 + i, c1 + 5), Cells(r1 + i, c1 + 5))
-    x4 = Sheets("Data").Range(Cells(r1 + i, c1 + 6), Cells(r1 + i, c1 + 6))
-    
-    y1 = Sheets("Sorted Debt").Range(Cells(r2 + i * 2, c2), Cells(r2 + i * 2, c2))
-    y2 = Sheets("Sorted Debt").Range(Cells(r2 + i * 2, c2 + 1), Cells(r2 + i * 2, c2 + 1))
-    
-    If s1 = "Total Public Debt Outstanding" Then
-        Sheets("Sorted Debt").y1 = s1
-    ElseIf s1 = "Total Marketable" Then
-    ElseIf s1 = "Total Nonmarketable" Then
-    ElseIf s2 = "Bills" Then
-    ElseIf s2 = "Notes" Then
-    ElseIf s2 = "Bonds" Then
-    ElseIf s2 = "Treasury Inflation-Protected Securities" Then
-    ElseIf s2 = "Floating Rate Notes" Then
-    ElseIf s2 = "Federal Financing Bank" Then
-    End If
-Next i
+        day1 = .Range(.Cells(r1, c1 + 12), .Cells(r1, c1 + 12)).Value
+        month1 = .Range(.Cells(r1, c1 + 11), .Cells(r1, c1 + 11)).Value
+        year1 = .Range(.Cells(r1, c1 + 9), .Cells(r1, c1 + 9)).Value
+
+        For i = 0 To 14
+            source_line = .Range(.Cells(r1 + i, c1 + 6), .Cells(r1 + i, c1 + 6)).Value
+            t1 = .Range(.Cells(r1 + i, c1 + 3), .Cells(r1 + i, c1 + 3)).Value
+            t2 = .Range(.Cells(r1 + i, c1 + 4), .Cells(r1 + i, c1 + 4)).Value
+            t3 = .Range(.Cells(r1 + i, c1 + 5), .Cells(r1 + i, c1 + 5)).Value
+            total_array(source_line - 1) = t3
+            public_array(source_line - 1) = t1
+            government_array(source_line - 1) = t2
+            
+        Next i
+        
+        For k = 0 To 14
+            With Worksheets("Sorted Debt")
+                .Cells(j + 1, 1) = DateSerial(year1, month1, day1)
+                .Cells(j + 1, c2 + k) = total_array(k)
+            End With
+        Next k
+        
+        r1 = r1 + 15
+        
+    Next j
+
+End With
+
+Worksheets("Sorted Debt").Activate
 
 End Sub
