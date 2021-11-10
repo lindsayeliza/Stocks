@@ -10,6 +10,7 @@ Public company_name_rows(10000) As Integer
 Public company_index As Integer
 Public company_range As Range
 Public num_statements As Integer
+Public entry As String
 '
 
 '-------------------------------------------------------------
@@ -90,95 +91,84 @@ With company_range
     Loop
 End With
 
-Call Analyze_Income_Statement
+Call Analyze_Profitability
+End Sub
+
+'-------------------------------------------------------------
+'Assess whether the company is profitable, based on its financial statements.
+'-------------------------------------------------------------
+
+Sub Analyze_Profitability()
+
+entry = "Total Revenue"
+Call Array_Analysis
 
 End Sub
 
-Sub Analyze_Income_Statement()
+'-------------------------------------------------------------
+'Analyze growth, groth acceleration, and variability for an accounting entry.
+'-------------------------------------------------------------
 
-'Find and analyze total revenue.
-Dim total_revenue(num_statements) As Integer
+Sub Array_Analysis()
 
-'Find and analyze net income.
+'Create coding variables.
+Dim cell As Range
+Dim calc As Single
+Dim sum As Variant
+
+'Create data analysis variables.
+ReDim entry_array(num_statements) As Integer
+ReDim growth_array(num_statements - 1) As Single
+ReDim acceleration_array(num_statements - 2) As Single
+
+Dim average_value As Integer
+Dim average_growth As Single
+Dim average_acceleration As Single
+
+Dim growing, accelerating As Boolean
+
+'Load the values for each period into an array and find average.
+sum = 0
+With company_range
+    Set cell = .Find(entry, LookIn:=xlValues)
+    For p = 0 To num_statements - 1
+        entry_array(p) = Cells(cell.Row, 2 + p * 2).Value
+        sum = sum + entry_array(p)
+    Next p
+End With
+average_value = sum / num_statements
+
+'Load the growth rates for each period into an array and find average.
+sum = 0
+For p = 0 To num_statements - 2
+    calc = (entry_array(p) - entry_array(p + 1)) / entry_array(p)
+    growth_array(p) = calc
+    sum = sum + calc
+Next p
+average_growth = sum / num_statements
+
+'Load the acceleration rates for each period into an array and find average.
+sum = 0
+For p = 0 To num_statements - 3
+    calc = (growth_array(p) - growth_array(p + 1)) / growth_array(p)
+    acceleration_array(p) = calc
+    sum = sum + calc
+Next p
+average_acceleration = sum / num_statements
+
+'Set boolean variables to determine direction and speed of growth.
+growing = False
+accelerating = False
+If average_growth > 0 Then
+    growing = True
+End If
+If average_acceleration > 0 Then
+    accelerating = True
+End If
+
+MsgBox (growing)
+MsgBox (accelerating)
+MsgBox (average_growth)
+MsgBox (average_acceleration)
 
 End Sub
-
-''Find the row locations of other financial data.
-'Dim company_row, next_company_row As Integer
-'company_row = company_name_rows(company_index)
-'next_company_row = company_name_rows(company_index + 1)
-'Dim closing_price As Single
-'Dim closing_price_string As String
-'Dim closing_price_array() As String
-'With Worksheets("reportbuilder").Range(Cells(company_row, 1), Cells(next_company_row, 1))
-'    Set cell = .Find("Closing Price", LookIn:=xlValues)
-'    closing_price_string = Cells(cell.Row + 1, 1)
-'    closing_price_array = Split(closing_price_string, " (")
-'    closing_price_string = closing_price_array(0)
-'    closing_price = CSng(closing_price_string)
-'End With
-'
-
-
-''Create coding variables.
-'Dim cell_value1 As Variant
-'Dim name_row, next_name_row As Integer
-'Dim closing_price_string As String
-'Dim closing_price_array() As String
-'
-''Create variables for analysis.
-'Dim company_name As String
-'Dim closing_price As Single
-'Dim num_statement_dates As Integer
-'Dim statement_year_array() As Integer
-'
-''Find the row location of the company name.
-'name_row = company_name_rows(current_company_number)
-'next_name_row = company_name_rows(current_company_number + 1)
-'
-''Find the closing price.
-'With Worksheets("reportbuilder")
-'    For r = name_row To next_name_row
-'        cell_value1 = .Range(.Cells(r, 2), .Cells(r, 2)).Value
-'        If cell_value1 = "Closing Stock Price" Then
-'            closing_price_string = .Range(.Cells(r + 1, 2), .Cells(r + 1, 2)).Value
-'            closing_price_array = Split(closing_price_string, " (")
-'            closing_price_string = closing_price_array(0)
-'            closing_price = CSng(closing_price_string)
-'        End If
-'    Next r
-'End With
-'
-'MsgBox company_name
-'MsgBox closing_price
-
-'Find the number of statement dates and store the years in an array.
-'With Worksheets("reportbuilder")
-'    For i = 1 To 100
-'        cell_value = .Range(.Cells(i, 1), .Cells(i, 1)).Value
-'        If cell_value = "General Company Information" Then
-'            num_companies = num_companies + 1
-'        End If
-'    Next i
-'End With
-
-'Call subs for analyzing each financial statement.
-'Call Analyze_Income_Statement
-
-'End Sub
-'
-'Sub Analyze_Income_Statement()
-''-------------------------------------------------------------
-''Analyze the income statement of a single company.
-''-------------------------------------------------------------
-'
-''Create coding variables.
-'
-''Create location and data variables for income statement.
-'Dim total_revenue_row As Integer
-'
-''Create arrays to collect data from the income statement.
-'Dim total_revenue_array() As Integer
-'Dim net_income_array() As Integer
-'
-'End Sub
