@@ -1,1 +1,71 @@
+'-------------------------------------------------------------
+'Create public variables
+'-------------------------------------------------------------
 
+Public num_companies As Integer
+'
+'
+'
+
+'-------------------------------------------------------------
+'Run the entire program.
+'-------------------------------------------------------------
+
+Sub Master_Analysis()
+
+Call Find_Number_Companies
+Call Analyze_Single_Company
+End Sub
+
+'-------------------------------------------------------------
+'Find the number of companies in the spreadsheet.
+'-------------------------------------------------------------
+
+Sub Find_Number_Companies()
+
+'Create the coding variables.
+Dim cell_value As Variant
+
+'Find the number of companies in the spreadsheet.
+num_companies = 0
+With Worksheets("reportbuilder")
+    For i = 1 To 100000
+        cell_value = .Range(.Cells(i, 1), .Cells(i, 1)).Value
+        If cell_value = "General Company Information" Then
+            num_companies = num_companies + 1
+        End If
+    Next i
+End With
+
+End Sub
+
+'-------------------------------------------------------------
+'Analyze a single company.
+'-------------------------------------------------------------
+
+Sub Analyze_Single_Company()
+
+'Create variables for analysis.
+Dim company_name As String
+Dim closing_price As Single
+
+'Find the number of statement dates.
+Dim num_statement_dates As Integer
+Dim statement_year_array() As Integer
+'ATTENTION: FINISH
+
+'Call subs for analyzing each financial statement.
+Call Analyze_Income_Statement
+
+End Sub
+
+Sub Analyze_Income_Statement()
+'-------------------------------------------------------------
+'Analyze the income statement of a single company.
+'-------------------------------------------------------------
+
+'Create arrays to collect data.
+Dim total_revenue_array() As Integer
+Dim net_income_array() As Integer
+
+End Sub
