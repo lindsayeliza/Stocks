@@ -2,9 +2,14 @@
 'Create public variables
 '-------------------------------------------------------------
 
+'Create variables for the whole portfolio.
 Public num_companies As Integer
-'
-'
+Public company_name_rows(10000) As Integer
+
+'Create variables for a single company.
+Public company_index As Integer
+Public company_range As Range
+Public num_statements As Integer
 '
 
 '-------------------------------------------------------------
@@ -13,28 +18,38 @@ Public num_companies As Integer
 
 Sub Master_Analysis()
 
-Call Find_Number_Companies
+company_index = 0
+Call Find_Company_Number_And_Names
 Call Analyze_Single_Company
+'
+'For i = 0 To num_companies - 1
+'    company_index = i
+'    Call Analyze_Single_Company
+'Next i
+
 End Sub
 
 '-------------------------------------------------------------
 'Find the number of companies in the spreadsheet.
 '-------------------------------------------------------------
 
-Sub Find_Number_Companies()
+Sub Find_Company_Number_And_Names()
 
-'Create the coding variables.
-Dim cell_value As Variant
+'Create coding variables.
+Dim cell As Range
+Dim first_cell_address As String
 
-'Find the number of companies in the spreadsheet.
+'Find the number of companies and store the row numbers of each company name.
 num_companies = 0
-With Worksheets("reportbuilder")
-    For i = 1 To 100000
-        cell_value = .Range(.Cells(i, 1), .Cells(i, 1)).Value
-        If cell_value = "General Company Information" Then
-            num_companies = num_companies + 1
-        End If
-    Next i
+With Worksheets("reportbuilder").Range("A1:A10000")
+    Set cell = .Find("General Company Information", LookIn:=xlValues)
+    company_name_rows(0) = cell.Row
+    first_cell_address = cell.Address
+    Do
+        Set cell = .FindNext(cell)
+        num_companies = num_companies + 1
+        company_name_rows(num_companies) = cell.Row
+    Loop While first_cell_address <> cell.Address
 End With
 
 End Sub
@@ -45,27 +60,125 @@ End Sub
 
 Sub Analyze_Single_Company()
 
-'Create variables for analysis.
-Dim company_name As String
+'Create coding variables
+Dim cell As Range
+
+'Set variables for single company analysis.
+Dim company_row, next_company_row As Integer
+company_row = company_name_rows(company_index)
+next_company_row = company_name_rows(company_index + 1)
+Set company_range = Worksheets("reportbuilder").Range(Cells(company_row, 1), Cells(next_company_row, 1))
+
+'Find the closing price.
 Dim closing_price As Single
+Dim closing_price_string As String
+Dim closing_price_array() As String
+With company_range
+    Set cell = .Find("Closing Price", LookIn:=xlValues)
+    closing_price_string = Cells(cell.Row + 1, 1)
+    closing_price_array = Split(closing_price_string, ": ")
+    closing_price_string = closing_price_array(1)
+    closing_price = CSng(closing_price_string)
+End With
 
 'Find the number of statement dates.
-Dim num_statement_dates As Integer
-Dim statement_year_array() As Integer
-'ATTENTION: FINISH
+num_statements = 0
+With company_range
+    Set cell = .Find("Report Date", LookIn:=xlValues)
+    Do While Cells(cell.Row, 2 + num_statements * 2).Value <> ""
+        num_statements = num_statements + 1
+    Loop
+End With
 
-'Call subs for analyzing each financial statement.
 Call Analyze_Income_Statement
 
 End Sub
 
 Sub Analyze_Income_Statement()
-'-------------------------------------------------------------
-'Analyze the income statement of a single company.
-'-------------------------------------------------------------
 
-'Create arrays to collect data.
-Dim total_revenue_array() As Integer
-Dim net_income_array() As Integer
+'Find and analyze total revenue.
+Dim total_revenue(num_statements) As Integer
+
+'Find and analyze net income.
 
 End Sub
+
+''Find the row locations of other financial data.
+'Dim company_row, next_company_row As Integer
+'company_row = company_name_rows(company_index)
+'next_company_row = company_name_rows(company_index + 1)
+'Dim closing_price As Single
+'Dim closing_price_string As String
+'Dim closing_price_array() As String
+'With Worksheets("reportbuilder").Range(Cells(company_row, 1), Cells(next_company_row, 1))
+'    Set cell = .Find("Closing Price", LookIn:=xlValues)
+'    closing_price_string = Cells(cell.Row + 1, 1)
+'    closing_price_array = Split(closing_price_string, " (")
+'    closing_price_string = closing_price_array(0)
+'    closing_price = CSng(closing_price_string)
+'End With
+'
+
+
+''Create coding variables.
+'Dim cell_value1 As Variant
+'Dim name_row, next_name_row As Integer
+'Dim closing_price_string As String
+'Dim closing_price_array() As String
+'
+''Create variables for analysis.
+'Dim company_name As String
+'Dim closing_price As Single
+'Dim num_statement_dates As Integer
+'Dim statement_year_array() As Integer
+'
+''Find the row location of the company name.
+'name_row = company_name_rows(current_company_number)
+'next_name_row = company_name_rows(current_company_number + 1)
+'
+''Find the closing price.
+'With Worksheets("reportbuilder")
+'    For r = name_row To next_name_row
+'        cell_value1 = .Range(.Cells(r, 2), .Cells(r, 2)).Value
+'        If cell_value1 = "Closing Stock Price" Then
+'            closing_price_string = .Range(.Cells(r + 1, 2), .Cells(r + 1, 2)).Value
+'            closing_price_array = Split(closing_price_string, " (")
+'            closing_price_string = closing_price_array(0)
+'            closing_price = CSng(closing_price_string)
+'        End If
+'    Next r
+'End With
+'
+'MsgBox company_name
+'MsgBox closing_price
+
+'Find the number of statement dates and store the years in an array.
+'With Worksheets("reportbuilder")
+'    For i = 1 To 100
+'        cell_value = .Range(.Cells(i, 1), .Cells(i, 1)).Value
+'        If cell_value = "General Company Information" Then
+'            num_companies = num_companies + 1
+'        End If
+'    Next i
+'End With
+
+'Call subs for analyzing each financial statement.
+'Call Analyze_Income_Statement
+
+'End Sub
+'
+'Sub Analyze_Income_Statement()
+''-------------------------------------------------------------
+''Analyze the income statement of a single company.
+''-------------------------------------------------------------
+'
+''Create coding variables.
+'
+''Create location and data variables for income statement.
+'Dim total_revenue_row As Integer
+'
+''Create arrays to collect data from the income statement.
+'Dim total_revenue_array() As Integer
+'Dim net_income_array() As Integer
+'
+'End Sub
